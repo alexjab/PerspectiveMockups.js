@@ -39,14 +39,48 @@ var MockupFoundry = (function (document) {
     context.scale (this.opts['plane-scale'], this.opts['plane-scale']);
     context.translate (this.opts['plane-translate-x'], this.opts['plane-translate-y']);
 
+    context.save ();
     /* actual rendering */
     if (type === 'perspective') {
       context.scale (1, 0.5);
       context.rotate (-45/180*Math.PI);
     }
+    context.save ()
+    /* draw shadows */
+    this.elements.forEach (function (element) {
+      context.shadowColor = 'rgba(0,0,0,0.5)';
+      context.shadowBlur = 30;
+      if (type === 'perspective') {
+        context.shadowOffsetY = 30;
+      }
+      context.fillStyle = 'rgb(255,255,255)';
+      context.fillRect (element.x+10, element.y+10, 620, 1110);
+    });
+    /* draw mocks */
+    context.restore ();
     this.elements.forEach (function (element) {
       context.drawImage (element.img, element.x, element.y);
     });
+
+    if (type === 'perspective') {
+      this.elements.forEach (function (element) {
+        var width = element.img.width;
+        var height = element.img.height;
+        var x = element.x;
+        var y = element.y;
+        var thickness = 15;
+        context.save ();
+        context.translate (x-thickness, y+thickness);
+        context.transform (1, -1, 0, 1, 0, 0)
+        context.fillRect (0,0,thickness,height);
+        context.restore ();
+        context.save ();
+        context.translate (x, y+height);
+        context.transform (1, 0, -1, 1, 0, 0)
+        context.fillRect (0,0,width,thickness);
+        context.restore ();
+      });
+    }
     return this;
   };
 
