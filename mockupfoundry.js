@@ -62,22 +62,92 @@ var MockupFoundry = (function (document) {
       context.drawImage (element.img, element.x, element.y);
     });
 
+    /* draw edges */
     if (type === 'perspective') {
+      var initialCanvas = document.createElement ('canvas');
+      var initialContext = initialCanvas.getContext ('2d');
       this.elements.forEach (function (element) {
         var width = element.img.width;
         var height = element.img.height;
-        var x = element.x;
-        var y = element.y;
         var thickness = 15;
+
+        /* rendering the initial picture to get the left and bottom pixels */
+        var initialImage = element.img;
+        initialCanvas.width = width;
+        initialCanvas.height = height;
+        initialContext.drawImage (initialImage, 0, 0, width, height);
+        var initialImageData = initialContext.getImageData (0, 0, width, height);
+
+        /* iterating over the imageData.data to get the actual pixels */
+        var data = initialImageData.data;
+        var dataLength = data.length;
+        var leftPixels = [];
+        var bottomPixels = [];
+        var j = 0, k = 0;
+        for (var i = 0; i < dataLength; i+=4) {
+          if ((i/4)%width === 0) {
+            leftPixels[j] = data[i];
+            leftPixels[j+1] = data[i+1];
+            leftPixels[j+2] = data[i+2];
+            leftPixels[j+3] = data[i+3];
+            j+=4;
+          }
+          if (i >= (dataLength - width*4)) {
+            bottomPixels[k] = data[i];
+            bottomPixels[k+1] = data[i+1];
+            bottomPixels[k+2] = data[i+2];
+            bottomPixels[k+3] = data[i+3];
+            k+=4;
+          }
+        }
+        /* left edge */
+        var leftImageData = context.createImageData (thickness, height);
+        var k = 0;
+        for (var j = 0; j < leftPixels.length; j+=4) {
+          for (var i = 0; i < thickness; i++) {
+            leftImageData.data[k] = leftPixels[j];
+            leftImageData.data[k+1] = leftPixels[j+1];
+            leftImageData.data[k+2] = leftPixels[j+2];
+            leftImageData.data[k+3] = leftPixels[j+3];
+            k+=4;
+          }
+        }
+        var leftCanvas = document.createElement ('canvas');
+        var leftContext = leftCanvas.getContext ('2d');
+        leftCanvas.width = thickness;
+        leftCanvas.height = height;
+        leftContext.putImageData (leftImageData, 0, 0);
+        leftContext.fillStyle = 'rgba(0,0,0,0.35)';
+        leftContext.fillRect (0, 0, thickness, height);
         context.save ();
-        context.translate (x-thickness, y+thickness);
+        context.translate (element.x - thickness, element.y + thickness);
         context.transform (1, -1, 0, 1, 0, 0)
-        context.fillRect (0,0,thickness,height);
+        context.drawImage (leftCanvas, 0, 0);
         context.restore ();
+
+        /* bottom edge */
+        var bottomImageData = context.createImageData (width, thickness);
+        k = 0;
+        for (var i = 0; i < thickness; i++) {
+          for (var j = 0; j < bottomPixels.length; j+=4) {
+            bottomImageData.data[k] = bottomPixels[j];
+            bottomImageData.data[k+1] = bottomPixels[j+1];
+            bottomImageData.data[k+2] = bottomPixels[j+2];
+            bottomImageData.data[k+3] = bottomPixels[j+3];
+            k+=4;
+          }
+        }
+        var bottomCanvas = document.createElement ('canvas');
+        bottomCanvas.width = width;
+        bottomCanvas.height = thickness;
+        var bottomContext = bottomCanvas.getContext ("2d");
+        bottomContext.putImageData (bottomImageData, 0, 0);
+        bottomContext.fillStyle = 'rgba(0,0,0,0.35)';
+        bottomContext.fillRect (0, 0, width, thickness);
         context.save ();
-        context.translate (x, y+height);
+        context.translate (element.x, element.y + height);
         context.transform (1, 0, -1, 1, 0, 0)
-        context.fillRect (0,0,width,thickness);
+        context.drawImage (bottomCanvas, 0, 0);
         context.restore ();
       });
     }
