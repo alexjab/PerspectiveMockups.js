@@ -8,11 +8,14 @@ var MockupFoundry = (function (document) {
     }
 
     this.context = canvas.getContext ('2d');
+    this.canvas = canvas;
     this.elements = [];
-    this.opts = {
+    this.params = {
       'plane-scale': 1,
       'plane-translate-x': 0,
-      'plane-translate-y': 0
+      'plane-translate-y': 0,
+      'plane-width': 1440,
+      'plane-height': 900
     };
   };
 
@@ -28,16 +31,18 @@ var MockupFoundry = (function (document) {
     return this;
   };
 
-  MockupFoundry.prototype.option = function (key, val) {
-    this.opts[key] = val;
+  MockupFoundry.prototype.param = function (key, val) {
+    this.params[key] = val;
     return this;
   };
 
   MockupFoundry.prototype.render = function (type) {
     var context = this.context;
     /* plane options */
-    context.scale (this.opts['plane-scale'], this.opts['plane-scale']);
-    context.translate (this.opts['plane-translate-x'], this.opts['plane-translate-y']);
+    this.canvas.width = this.params['plane-width'];
+    this.canvas.height = this.params['plane-height'];
+    context.scale (this.params['plane-scale'], this.params['plane-scale']);
+    context.translate (this.params['plane-translate-x'], this.params['plane-translate-y']);
 
     context.save ();
     /* actual rendering */
@@ -54,7 +59,7 @@ var MockupFoundry = (function (document) {
         context.shadowOffsetY = 30;
       }
       context.fillStyle = 'rgb(255,255,255)';
-      context.fillRect (element.x+10, element.y+10, 620, 1110);
+      context.fillRect (element.x+10, element.y+10, element.img.width - 20, element.img.height - 20);
     });
     /* draw mocks */
     context.restore ();
