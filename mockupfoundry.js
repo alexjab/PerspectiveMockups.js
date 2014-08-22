@@ -15,7 +15,9 @@ var MockupFoundry = (function (document) {
       'plane-translate-x': 0,
       'plane-translate-y': 0,
       'plane-width': 1440,
-      'plane-height': 900
+      'plane-height': 900,
+      'edge-thickness': 15,
+      'screen-spacing': 50
     };
   };
 
@@ -28,11 +30,35 @@ var MockupFoundry = (function (document) {
       var img = new Image ();
       img.src = elem.source;
       elem.img = img;
+      elem.ready = false;
+      img.onload = function () { elem.ready = true; };
       this.elements.push (elem);
     } else {
       this.elements.push (null);
     }
     return this;
+  };
+
+  MockupFoundry.prototype.ready = function (callback) {
+    /* ugly hack to cope with the asynchronous nature of canvas image loading */
+    if (typeof callback === 'function') {
+      var elements = this.elements;
+      var isReady = function () {
+        return elements.reduce (function (memo, elem) {
+          if (elem.ready === false) {
+            memo = false;
+          }
+          return memo;
+        }, true);
+      };
+      if (isReady ()) return callback ();
+      var interval = setInterval (function () {
+        if (isReady ()) {
+          clearInterval (interval);
+          return callback ();
+        }
+      }, 100);
+    }
   };
 
   MockupFoundry.prototype.param = function (key, val) {
@@ -42,6 +68,7 @@ var MockupFoundry = (function (document) {
 
   MockupFoundry.prototype.render = function (type) {
     var context = this.context;
+    var params = this.params;
     /* plane options */
     this.canvas.width = this.params['plane-width'];
     this.canvas.height = this.params['plane-height'];
@@ -83,7 +110,7 @@ var MockupFoundry = (function (document) {
         if (element) {
           var width = element.img.width;
           var height = element.img.height;
-          var thickness = 15;
+          var thickness = params['edge-thickness'];
 
           /* rendering the initial picture to get the left and bottom pixels */
           var initialImage = element.img;
@@ -172,6 +199,7 @@ var MockupFoundry = (function (document) {
   MockupFoundry.prototype.layout = function (name) {
     var maxHeight = 0, maxWidth = 0;
     var elements = this.elements;
+    var params = this.params;
     elements.forEach (function (element) {
       if (element) {
         if (element.img.height > maxHeight) {
@@ -183,20 +211,22 @@ var MockupFoundry = (function (document) {
       }
     });
     this.elements = elements.map (function (element, index) {
+      var spacing = params['screen-spacing'];
       if (element) {
         if (name === 'metro') {
-          element.x = index*(maxWidth + 50) + (maxWidth - element.img.width)/2;
+          element.x = index*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
         } else if (name === 'city') {
-          element.x = (index%3)*(maxWidth + 50) + (maxWidth - element.img.width)/2;
-          element.y = (Math.floor (index/3)*(maxHeight + 50)) + (maxHeight - element.img.height)/2;
+          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
+          element.y = (Math.floor (index/3)*(maxHeight + spacing)) + (maxHeight - element.img.height)/2;
         } else if (name === 'terminal') {
           var offsets = [0.5, 0, 0.25];
-          element.x = (index%3)*(maxWidth + 50) + (maxWidth - element.img.width)/2;
-          element.y = Math.floor (index/3)*(maxHeight + 50) + maxHeight*(offsets[index%3]) + (maxWidth - element.img.width)/2;
+          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
+          element.y = Math.floor (index/3)*(maxHeight + spacing) + maxHeight*(offsets[index%3]) + (maxWidth - element.img.width)/2;
         }
       }
       return element;
     });
+    return this;
   };
 
   return MockupFoundry;
