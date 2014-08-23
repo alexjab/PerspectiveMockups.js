@@ -1,5 +1,7 @@
-var MockupFoundry = (function (document) {
-  var MockupFoundry = function (el) {
+var PerspectiveMockups = (function (document) {
+  //'use strict';
+
+  var PerspectiveMockups = function (el) {
     var canvas;
     if (typeof el === 'string') {
       canvas = document.getElementById (el);
@@ -11,17 +13,17 @@ var MockupFoundry = (function (document) {
     this.canvas = canvas;
     this.elements = [];
     this.params = {
-      'plane-scale': 1,
-      'plane-translate-x': 0,
-      'plane-translate-y': 0,
-      'plane-width': 1440,
-      'plane-height': 900,
-      'edge-thickness': 15,
-      'screen-spacing': 50
+      planeScale: 1,
+      planeOffsetX: 0,
+      planeOffsetY: 0,
+      planeWidth: 1440,
+      planeHeight: 900,
+      edgeThickness: 10,
+      screenSpacing: 100
     };
   };
 
-  MockupFoundry.prototype.addElement = function (source) {
+  PerspectiveMockups.prototype.usePicture = function (source) {
     if (source) {
       var elem = {};
       elem.source = source || 'default.png'
@@ -39,7 +41,14 @@ var MockupFoundry = (function (document) {
     return this;
   };
 
-  MockupFoundry.prototype.ready = function (callback) {
+  PerspectiveMockups.prototype.usePictures = function (sources) {
+    if (sources instanceof Array) {
+      sources.forEach (this.usePicture.bind (this));
+    }
+    return this;
+  };
+
+  PerspectiveMockups.prototype.onReady = function (callback) {
     /* ugly hack to cope with the asynchronous nature of canvas image loading */
     if (typeof callback === 'function') {
       var elements = this.elements;
@@ -59,21 +68,32 @@ var MockupFoundry = (function (document) {
         }
       }, 100);
     }
+    return this;
   };
 
-  MockupFoundry.prototype.param = function (key, val) {
+  PerspectiveMockups.prototype.setParameter = function (key, val) {
     this.params[key] = val;
     return this;
   };
 
-  MockupFoundry.prototype.render = function (type) {
+  PerspectiveMockups.prototype.setParameters = function (params) {
+    if (params instanceof Object) {
+      var keys = Object.keys (params);
+      keys.forEach (function (key) {
+        this.setParameter (key, params[key]);
+      }.bind (this));
+    }
+    return this;
+  };
+
+  PerspectiveMockups.prototype.render = function (type) {
     var context = this.context;
     var params = this.params;
     /* plane options */
-    this.canvas.width = this.params['plane-width'];
-    this.canvas.height = this.params['plane-height'];
-    context.scale (this.params['plane-scale'], this.params['plane-scale']);
-    context.translate (this.params['plane-translate-x'], this.params['plane-translate-y']);
+    this.canvas.width = params.planeWidth;
+    this.canvas.height = params.planeHeight;
+    context.scale (params.planeScale, params.planeScale);
+    context.translate (params.planeOffsetX, params.planeOffsetY);
 
     context.save ();
     /* actual rendering */
@@ -110,7 +130,7 @@ var MockupFoundry = (function (document) {
         if (element) {
           var width = element.img.width;
           var height = element.img.height;
-          var thickness = params['edge-thickness'];
+          var thickness = params.edgeThickness;
 
           /* rendering the initial picture to get the left and bottom pixels */
           var initialImage = element.img;
@@ -196,7 +216,7 @@ var MockupFoundry = (function (document) {
     return this;
   };
 
-  MockupFoundry.prototype.layout = function (name) {
+  PerspectiveMockups.prototype.setLayout = function (name) {
     var maxHeight = 0, maxWidth = 0;
     var elements = this.elements;
     var params = this.params;
@@ -211,7 +231,7 @@ var MockupFoundry = (function (document) {
       }
     });
     this.elements = elements.map (function (element, index) {
-      var spacing = params['screen-spacing'];
+      var spacing = params.screenSpacing;
       if (element) {
         if (name === 'metro') {
           element.x = index*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
@@ -229,5 +249,5 @@ var MockupFoundry = (function (document) {
     return this;
   };
 
-  return MockupFoundry;
+  return PerspectiveMockups;
 }) (document);
