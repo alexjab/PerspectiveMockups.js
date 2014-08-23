@@ -35,6 +35,7 @@ Give a flat, perspective look to your mockups and screenshots.
 
 ## Usage
 (use the previous excerpt as a cheatsheet)
+
 1. create a blank HTML page,
 2. import the `perspectivemockups.js` script,
 3. create a PerspectiveMockups object,
@@ -54,7 +55,7 @@ Create a new `PerspectiveMockups` object. The parameter can either be the `id` o
 Add pictures to the set.
 
 ```
-mockups.usePictures ( ['pictures/01.png', 'pictures/02.png', 'pictures/03.png', ... ] );
+mockups.usePictures (['pictures/01.png', 'pictures/02.png', 'pictures/03.png', /* ... */ ]);
 ```
 
 ### mockups.setParameters( Object )
@@ -70,9 +71,19 @@ Possible keys of the Object:
  - `edgeThickness`: the thickness of the mockups' edge (`Integer`),
  - `screenSpacing`: the spacing between mockups (`Integer`).
 
+```
+mockups.setParameters ({ planeScale: 1, /* ... */ });
+```
+
 ### mockups.onReady( Function )
 
 A callback to be executed once the pictures have loaded.
+
+```
+mockups.onReady (function () {
+  /* ... */
+});
+```
 
 ### mockups.setLayout( String )
 
@@ -83,6 +94,9 @@ Possible values for String:
  - `metro`: the mockups are laid side-by-side, by their height,
  - `terminal`: the mockups are laid side-by-side, like tapes, but with a different vertical offset.
 
+```
+mockups.setLayout ('terminal');
+```
 
 ### mockups.render( String )
 
@@ -91,6 +105,10 @@ Renders the scene. The scene must be rendered once all the pictures have loaded.
 Possible values for String:
  - `blueprint`: the mockups are laid flat,
  - `perspective`: the mockups are rendered in 3D (what you might expect).
+
+```
+mockups.render ('perspective');
+```
 
 ## A practical guide to actually achieving what was promised
 
