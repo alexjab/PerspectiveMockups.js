@@ -1,11 +1,11 @@
 PerspectiveMockups.js
 ================
 
-A flat, perspective app screen mockup generator
+Give a flat, perspective look to your mockups and screenshots.
 
-PerspectiveMockups is a javascript library that renders nice phone screen mockups.
+**Important**: it must be used to generate a picture to be saved as a PNG and then uploaded on a website or whatever; it is not meant to generate pictures at page load.
 
-*Important*: it must be used to generate a picture to be saved as a PNG and then uploaded on a website or whatever; it is not meant to be used as a front-end framework;
+![Mockups picture](http://i.imgur.com/EdOXg9m.png)
 
 ##TL;DR
 ```
