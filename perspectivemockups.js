@@ -93,8 +93,8 @@ var PerspectiveMockups = (function (document) {
     /* plane options */
     this.canvas.width = params.planeWidth;
     this.canvas.height = params.planeHeight;
-    context.scale (params.planeScale, params.planeScale);
     context.translate (params.planeOffsetX, params.planeOffsetY);
+    context.scale (params.planeScale, params.planeScale);
 
     context.save ();
     /* actual rendering */

@@ -38,6 +38,7 @@
     image.src = source;
     pictures.push (source);
     image.width = 150;
+    image.height = 225;
     image.alt = 'File not found !'
     var button = document.createElement ('input');
     button.type = 'button';
