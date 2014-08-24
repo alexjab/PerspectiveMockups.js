@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="app/style.css" media="all" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="column" id="column-left">
+      <h3>Pictures</h3>
+      <div>
+        <hr/>
+        <input type="text" class="path-input" id="input-picture-path" placeholder="Picture path" /> <input type="button" id="btn-add-picture" value="Add picture" />
+        <div id="picture-items">
+        </div>
+      </div>
+    </div>
+    <div class="column" id="column-center"><canvas id="main-canvas"></canvas></div>
+    <div class="column" id="column-right">
+      <h3>Parameters</h3>
+      <div>
+        <hr/>
+        <div class="param-item">Plane Scale <input id="btn-default-scale" type="button" value="↩" title="Reset to default value"/></div>
+        <div class="param-item">
+          <input class="param-input" id="input-scale" type="number" step="0.1" value="1.0"/>
+        </div>
+        <hr/>
+        <div class="param-item">Plane Offset <input id="btn-default-offset" type="button" value="↩" title="Reset to default value"/></div>
+        <div class="param-item">
+          <input class="param-input" id="input-offset-x" type="number" value="0"/> px &times; <input class="param-input" id="input-offset-y" type="number" value="0"/> px
+        </div>
+        <hr/>
+        <div class="param-item">Plane Dimensions <input id="btn-default-size" type="button" value="↩" title="Reset to default value"/></div>
+        <div class="param-item">
+          <input class="param-input" id="input-size-x" type="number" value="1440"/> px &times; <input class="param-input" id="input-size-y" type="number" value="900"/> px
+        </div>
+        <hr/>
+        <div class="param-item">Edge Thickness <input id="btn-default-thickness" type="button" value="↩" title="Reset to default value"/></div>
+        <div class="param-item">
+          <input class="param-input" id="input-thickness" type="number" value="15"/> px
+        </div>
+        <hr/>
+        <div class="param-item">Screen Spacing <input id="btn-default-spacing" type="button" value="↩" title="Reset to default value"/></div>
+        <div class="param-item">
+          <input class="param-input" id="input-spacing" type="number" value="100"/> px
+        </div>
+        <hr/>
+        <div class="param-item"><input type="button" id="btn-render" value="Render"/></div>
+      </div>
+    </div>
+    <script src="perspectivemockups.js"></script>
+    <script src="app/app.js"></script>
+  </body>
+</html>

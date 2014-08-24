@@ -42,6 +42,7 @@ var PerspectiveMockups = (function (document) {
   };
 
   PerspectiveMockups.prototype.usePictures = function (sources) {
+    this.elements = [];
     if (sources instanceof Array) {
       sources.forEach (this.usePicture.bind (this));
     }
@@ -247,6 +248,10 @@ var PerspectiveMockups = (function (document) {
       return element;
     });
     return this;
+  };
+
+  PerspectiveMockups.prototype.reset = function () {
+    this.canvas.size = this.canvas.size;
   };
 
   return PerspectiveMockups;

@@ -166,3 +166,10 @@ When setting `planeScale` to a lower value, you will most likely see artifacts a
   </body>
 </html>
 ```
+
+## The application
+
+For more convenience, I've built a small web app; open it in a browser as you would have the library.
+
+![application](http://i.imgur.com/ujSiIjB.png)
+
