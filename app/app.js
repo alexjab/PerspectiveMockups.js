@@ -26,34 +26,36 @@
   var pictures = [];
   var onAddPicture = function () {
     var source = document.getElementById ('input-picture-path').value;
-    var container = document.createElement ('div');
-    container.style.width = 175;
-    container.style.height = 250;
-    container.style.overflow = 'clip';
-    container.style.marginBottom = 10;
-    container.style.padding = 10;
-    //container.style.border = '1px solid #B2B2B2';
-    container.style.backgroundColor = '#4F4F4F';
-    var image = new Image ();
-    image.src = source;
-    pictures.push (source);
-    image.width = 150;
-    image.height = 225;
-    image.alt = 'File not found !'
-    var button = document.createElement ('input');
-    button.type = 'button';
-    button.value = 'Remove';
-    button.setAttribute ('data-src', image.src);
-    button.setAttribute ('class', 'btn-remove-picture');
-    button.style.marginTop = 10;
-    button.addEventListener ('mouseup', function () {
-      var index = pictures.indexOf (source);
-      pictures.splice (index, 1);
-      document.getElementById ('picture-items').removeChild (container);
-    });
-    container.appendChild (image);
-    container.appendChild (button);
-    document.getElementById ('picture-items').appendChild (container);
+    if (source) {
+      var container = document.createElement ('div');
+      container.style.width = 175;
+      container.style.height = 250;
+      container.style.overflow = 'clip';
+      container.style.marginBottom = 10;
+      container.style.padding = 10;
+      //container.style.border = '1px solid #B2B2B2';
+      container.style.backgroundColor = '#4F4F4F';
+      var image = new Image ();
+      image.src = source;
+      pictures.push (source);
+      image.width = 150;
+      image.height = 225;
+      image.alt = 'File not found !'
+      var button = document.createElement ('input');
+      button.type = 'button';
+      button.value = 'Remove';
+      button.setAttribute ('data-src', image.src);
+      button.setAttribute ('class', 'btn-remove-picture');
+      button.style.marginTop = 10;
+      button.addEventListener ('mouseup', function () {
+        var index = pictures.indexOf (source);
+        pictures.splice (index, 1);
+        document.getElementById ('picture-items').removeChild (container);
+      });
+      container.appendChild (image);
+      container.appendChild (button);
+      document.getElementById ('picture-items').appendChild (container);
+    }
   };
 
   document.getElementById ('btn-add-picture').addEventListener ('mouseup', onAddPicture);
@@ -82,7 +84,7 @@
     mockups.setParameters (parameters);
 
     mockups.onReady (function () {
-      mockups.setLayout ('terminal');
+      mockups.setLayout (document.getElementById ('select-layout').value || 'metro');
       mockups.render ();
       document.getElementById ('btn-render').value = 'Render';
     });
