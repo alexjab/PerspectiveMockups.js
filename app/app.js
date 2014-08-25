@@ -83,7 +83,7 @@
 
     mockups.onReady (function () {
       mockups.setLayout ('terminal');
-      mockups.render ('perspective');
+      mockups.render ();
       document.getElementById ('btn-render').value = 'Render';
     });
   });
