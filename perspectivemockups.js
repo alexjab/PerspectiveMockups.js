@@ -29,6 +29,8 @@ var PerspectiveMockups = (function (document) {
       elem.source = source || 'default.png'
       elem.x = 0;
       elem.y = 0;
+      elem.alpha = 1.0;
+      elem.shadow = true;
       var img = new Image ();
       img.src = elem.source;
       elem.img = img;
@@ -89,6 +91,7 @@ var PerspectiveMockups = (function (document) {
 
   PerspectiveMockups.prototype.render = function () {
     var context = this.context;
+    var canvas = this.canvas;
     var params = this.params;
     /* plane options */
     this.canvas.width = params.planeWidth;
@@ -101,16 +104,7 @@ var PerspectiveMockups = (function (document) {
     context.scale (1, 0.5);
     context.rotate (-45/180*Math.PI);
     context.save ()
-    // draw shadows
-    this.elements.forEach (function (element) {
-      if (element) {
-        context.shadowColor = 'rgba(0,0,0,0.5)';
-        context.shadowBlur = 30;
-        context.shadowOffsetY = 30;
-        context.fillStyle = 'rgb(255,255,255)';
-        context.fillRect (element.x+10, element.y+10, element.img.width - 20, element.img.height - 20);
-      }
-    });
+
     // draw mocks
     context.restore ();
     context.restore ();
@@ -118,12 +112,34 @@ var PerspectiveMockups = (function (document) {
     this.elements.forEach (function (element) {
       if (element) {
         context.save ();
+        // a canvas used for compositing;
+        // we need it to extract the borders of the image only
+        // to use for the edge, in case we want to apply transparency.
+        var compoCanvas = document.createElement ('canvas');
+        compoCanvas.width = element.img.width;
+        compoCanvas.height = element.img.height;
+        var compoContext = compoCanvas.getContext ('2d');
+        compoContext.fillRect (3, 0, element.img.width, element.img.height-3);
+        compoContext.globalCompositeOperation = "source-out";
+        compoContext.drawImage (element.img, 0, 0);
+
         for (var i = 0; i < params.edgeThickness; i++) {
           context.translate (0, -1);
           context.save ();
+          context.globalAlpha = element.alpha;
           context.scale (1, 0.5);
           context.rotate (-45/180*Math.PI);
-          context.drawImage (element.img, element.x, element.y);
+          if (i === params.edgeThickness - 1) {
+            // TODO : find a way to have the opacity of the shadow set to 1
+            if (element.shadow) {
+              context.shadowColor = 'rgba(0,0,0,0.5)';
+              context.shadowBlur = 30;
+              context.shadowOffsetY = 30;
+            }
+            context.drawImage (element.img, element.x, element.y);
+          } else {
+            context.drawImage (compoCanvas, element.x, element.y);
+          }
           context.restore ();
         }
         context.restore ();
@@ -142,12 +158,14 @@ var PerspectiveMockups = (function (document) {
         var thickness = params.edgeThickness;
 
         context.save ();
+        context.globalAlpha = element.alpha;
         context.translate (element.x, element.y);
         context.transform (1, -1, 0, 1, 0, 0)
         context.fillRect (0, 0, thickness*Math.sqrt (2), height);
         context.restore ();
 
         context.save ();
+        context.globalAlpha = element.alpha;
         context.translate (element.x + thickness*Math.sqrt (2), element.y + height - thickness*Math.sqrt (2));
         context.transform (1, 0, -1, 1, 0, 0)
         context.fillRect (0, 0, width, thickness*Math.sqrt (2));
@@ -171,18 +189,38 @@ var PerspectiveMockups = (function (document) {
         }
       }
     });
+
     this.elements = elements.map (function (element, index) {
       var spacing = params.screenSpacing;
+      var height = element.img.height;
+      var width = element.img.width;
       if (element) {
         if (name === 'metro') {
-          element.x = index*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
+          element.x = index*(maxWidth + spacing) + (maxWidth - width)/2;
         } else if (name === 'city') {
-          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
-          element.y = (Math.floor (index/3)*(maxHeight + spacing)) + (maxHeight - element.img.height)/2;
+          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - width)/2;
+          element.y = (Math.floor (index/3)*(maxHeight + spacing)) + (maxHeight - height)/2;
         } else if (name === 'terminal') {
           var offsets = [0.5, 0, 0.25];
-          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - element.img.width)/2;
-          element.y = Math.floor (index/3)*(maxHeight + spacing) + maxHeight*(offsets[index%3]) + (maxWidth - element.img.width)/2;
+          element.x = (index%3)*(maxWidth + spacing) + (maxWidth - width)/2;
+          element.y = Math.floor (index/3)*(maxHeight + spacing) + maxHeight*(offsets[index%3]) + (maxWidth - width)/2;
+        } else if (name === 'store') {
+          element.y = index*(maxHeight + spacing) + (maxHeight - height)/2;
+        } else if (name === 'rapture') {
+          element.y = -index*(spacing);
+          element.x = index*(spacing);
+          element.alpha = 1 - 0.75*index/elements.length;
+          if (index > 0) {
+            element.shadow = false;
+          }
+        } else if (name === 'deck') {
+          element.y = -index*(spacing);
+          element.x = index*(spacing);
+          element.alpha = 0.25 + 0.75*(index+1)/elements.length;
+          console.log (element.alpha);
+          if (index > 0) {
+            element.shadow = false;
+          }
         }
       }
       return element;
